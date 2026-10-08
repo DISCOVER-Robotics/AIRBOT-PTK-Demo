@@ -1,0 +1,62 @@
+robot:
+  type: airbot_PTK_follower
+  left_arm_port: can0
+  right_arm_port: can1
+  id: PTK_follower
+  cameras:
+    left_hand_camera:
+      # type: realsense
+      # serial_number_or_name: "243322073683"
+      # width: 640
+      # height: 480
+      # fps: 30
+      # color_mode: RGB
+      # use_depth: false
+      # rotation: NO_ROTATION
+      type: opencv
+      index_or_path: "/dev/video4"
+      width: 640
+      height: 480
+      fps: 25
+      rotation: NO_ROTATION
+    right_hand_camera:
+      # type: realsense
+      # serial_number_or_name: "243322072684"
+      # width: 640
+      # height: 480
+      # fps: 30
+      # color_mode: RGB
+      # use_depth: false
+      # rotation: NO_ROTATION
+      type: opencv
+      index_or_path: "/dev/video6"
+      width: 640
+      height: 480
+      fps: 25
+      rotation: NO_ROTATION
+    env_camera:
+      type: opencv
+      index_or_path: "/dev/video2"
+      width: 640
+      height: 480
+      fps: 30
+      rotation: NO_ROTATION
+teleop:
+  type: airbot_PTK_leader
+  left_arm_port: can2
+  right_arm_port: can3
+  id: PTK_leader
+run:
+  fps: 30
+  display_data: false
+  num_episodes: 25
+  episode_time_sec: 60
+  reset_time_sec: 10
+  single_task: "Bimanual manipulation task"
+dataset:
+  repo_id: ptk_test
+  video: true
+  num_image_writer_processes: 0
+  num_image_writer_threads_per_camera: 4
+  video_encoding_batch_size: 1
+  push_to_hub: false
