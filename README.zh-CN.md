@@ -57,7 +57,23 @@ uv pip install /path/to/airbot_hardware_py-MATCHING_VERSION.whl
 
 按官方硬件教程安装 `airbot-configure_5.1.6-1_all.deb`。依赖排查参考模型教程，包括 `tyro==0.9.22`、`linuxpy` 与 `pyturbojpeg==1.8.2`。
 
+检查 FFmpeg 是否提供 SVT-AV1 编码器：
+
+```bash
+ffmpeg -encoders | grep svtav1
+```
+
+![官方教程中的 FFmpeg 编码器检查结果](assets/ffmpeg-verification.png)
+
 ## 2. 配置数据采集
+
+配置机械臂前，先检查 CAN 接口是否被识别。下图接口名是官方采集教程中的示例，请以实际设备对应关系为准。
+
+```bash
+ip link show
+```
+
+![官方采集教程中的 CAN 接口识别结果](assets/can-interfaces.jpg)
 
 结合官方采集流程使用 [config_PTK.yaml](configs/config_PTK.yaml)。按实际接线修改四个 CAN 接口和三个相机设备。每次采集前设置新的数据集 ID 和真实任务描述。
 
@@ -80,6 +96,10 @@ XLA_PYTHON_CLIENT_MEM_FRACTION=0.9 uv run examples/airbot/airbot_train.py --conf
 
 训练需要真实数据集，本仓库不包含数据集。
 
+官方模型复现教程中的模型目录示例如下。这只是目录结构参考，不代表本 Demo 已包含该模型；请使用与任务匹配的实际训练输出。
+
+![官方教程中的模型目录示例](assets/checkpoint-layout.png)
+
 ## 4. 双臂推理
 
 修改配套包内 `examples/airbot/robot_config.py` 中的 `RobotAHConfig`，核对两个机械臂接口、相机编号及初始姿态。相机顺序必须是环境、左腕、右腕。
@@ -96,5 +116,6 @@ uv run examples/airbot/airbot_inference_sync_ah.py policy-config:local-policy-co
 
 ## 来源说明
 
-采集 YAML 来自 `docs/assets/airbot-play/config_PTK.yaml`；训练配置原样取自已下载的 `openpi_v0.2.0.zip`。版本和许可说明见 [SOURCE.md](SOURCE.md)。不上传内部 Git 历史、无关产品资料、模型权重或数据集。
+参考图片来自官方模型复现和数据采集文档，已放到对应操作步骤旁。
 
+采集 YAML 来自 `docs/assets/airbot-play/config_PTK.yaml`；训练配置原样取自已下载的 `openpi_v0.2.0.zip`。版本和许可说明见 [SOURCE.md](SOURCE.md)。不上传内部 Git 历史、无关产品资料、模型权重或数据集。

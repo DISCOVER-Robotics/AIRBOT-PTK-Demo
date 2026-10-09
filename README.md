@@ -57,7 +57,23 @@ uv pip install /path/to/airbot_hardware_py-MATCHING_VERSION.whl
 
 Install `airbot-configure_5.1.6-1_all.deb` according to the official hardware guide. Refer to the model reproduction guide for dependency troubleshooting, including `tyro==0.9.22`, `linuxpy`, and `pyturbojpeg==1.8.2`.
 
+Verify that FFmpeg provides the SVT-AV1 encoder:
+
+```bash
+ffmpeg -encoders | grep svtav1
+```
+
+![FFmpeg encoder verification from the official tutorial](assets/ffmpeg-verification.png)
+
 ## 2. Configure Data Collection
+
+Check that the CAN interfaces are recognized before configuring the arms. The interface names below are examples from the official collection guide; use your actual device assignments.
+
+```bash
+ip link show
+```
+
+![Recognized CAN interfaces from the official collection guide](assets/can-interfaces.jpg)
 
 Use [config_PTK.yaml](configs/config_PTK.yaml) with the collection workflow documented above. Edit all four CAN interfaces and the three camera devices for your hardware. Set a new dataset ID and the actual task description before every collection run.
 
@@ -80,6 +96,10 @@ XLA_PYTHON_CLIENT_MEM_FRACTION=0.9 uv run examples/airbot/airbot_train.py --conf
 
 Training requires a real dataset; this repository does not include one.
 
+The official model reproduction guide illustrates a checkpoint directory as follows. This is a reference layout, not a checkpoint included with this demo; use the output of your matching training run.
+
+![Example checkpoint directory from the official tutorial](assets/checkpoint-layout.png)
+
 ## 4. Run Dual-Arm Inference
 
 Edit `examples/airbot/robot_config.py` in the extracted package. For its `RobotAHConfig`, check both arm interfaces, camera indices, and initial positions. Camera order must be environment, left wrist, right wrist.
@@ -96,5 +116,6 @@ Check the inference script's prompt and reset pose against your training task be
 
 ## Provenance
 
-The collection YAML is copied from `docs/assets/airbot-play/config_PTK.yaml`. The training example is copied unchanged from the downloaded `openpi_v0.2.0.zip`. See [SOURCE.md](SOURCE.md) for version and license notes. Internal Git history, unrelated product materials, model weights, and datasets are not uploaded.
+The reference images are copied from the official model reproduction and data collection documentation and placed beside their corresponding steps.
 
+The collection YAML is copied from `docs/assets/airbot-play/config_PTK.yaml`. The training example is copied unchanged from the downloaded `openpi_v0.2.0.zip`. See [SOURCE.md](SOURCE.md) for version and license notes. Internal Git history, unrelated product materials, model weights, and datasets are not uploaded.
