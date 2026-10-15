@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-Dual-arm data collection, policy training, and local inference with AIRBOT Play PTK. This repository organizes the PTK materials from the DISCOVER Robotics documentation checkout. The task-specific [cloth-folding demo](https://github.com/DISCOVER-Robotics/AIRBOT-Play-PTK-Cloth-Folding-Demo) is maintained separately.
+Dual-arm data collection, policy training, and local inference with AIRBOT Play PTK. The task-specific [cloth-folding demo](https://github.com/DISCOVER-Robotics/AIRBOT-Play-PTK-Cloth-Folding-Demo) is maintained separately.
 
 ## Resources
 
@@ -10,7 +10,7 @@ Dual-arm data collection, policy training, and local inference with AIRBOT Play 
 | --- | --- |
 | Compatible OpenPI and data-collection packages | [Official package download](https://docs.discover-robotics.com/document/assets/airbot-play/model-reproduction/pi0.5.zip) |
 | PTK collection configuration | [configs/config_PTK.yaml](configs/config_PTK.yaml) |
-| Original package training configuration | [configs/config_ptk_example.py](configs/config_ptk_example.py) |
+| OpenPI training example configuration | [configs/config_ptk_example.py](configs/config_ptk_example.py) |
 | Model reproduction guide | [Official documentation](https://docs.discover-robotics.com/document/airbot-play/hardware-driver/tutorials/model-reproduction/pi0.5.html) |
 | Data collection guide | [Official documentation](https://docs.discover-robotics.com/document/airbot-play/hardware-driver/tutorials/data-collection.html) |
 | Hardware packages | [AIRBOT Play Hardware releases](https://github.com/DISCOVER-Robotics/AIRBOT-Play-Hardware/releases) |
@@ -28,7 +28,7 @@ The implementation is in the linked compatible package, not vendored in this rep
 | OpenPI archive | openpi_v0.2.0 |
 | Data-collection archive | airbot-data-5.1.6.7 |
 | Device configuration package | airbot-configure 5.1.6-1 |
-| Hardware wheel | Select the matching Python/platform wheel from the hardware releases; no exact wheel version is asserted here |
+| Hardware wheel | Select the matching Python/platform wheel from the hardware releases |
 
 Keep collection and inference environments separate when their dependency requirements differ. The official guide recommends Python 3.12 for hardware-driver installation on Ubuntu 24.04.
 
@@ -63,29 +63,29 @@ Verify that FFmpeg provides the SVT-AV1 encoder:
 ffmpeg -encoders | grep svtav1
 ```
 
-![FFmpeg encoder verification from the official tutorial](assets/ffmpeg-verification.png)
+![FFmpeg encoder verification](assets/ffmpeg-verification.png)
 
 ## 2. Configure Data Collection
 
-Check that the CAN interfaces are recognized before configuring the arms. The interface names below are examples from the official collection guide; use your actual device assignments.
+Check that the CAN interfaces are recognized before configuring the arms. The interface names below are examples; use your actual device assignments.
 
 ```bash
 ip link show
 ```
 
-![Recognized CAN interfaces from the official collection guide](assets/can-interfaces.jpg)
+![Recognized CAN interfaces](assets/can-interfaces.jpg)
 
 Use [config_PTK.yaml](configs/config_PTK.yaml) with the collection workflow documented above. Edit all four CAN interfaces and the three camera devices for your hardware. Set a new dataset ID and the actual task description before every collection run.
 
-The YAML describes the current documentation's LeRobot Play collection workflow. The original OpenPI configuration uses MCAP topics; these formats are not interchangeable. Use the matching collection/conversion workflow for the package and dataset you actually have.
+The collection YAML uses the LeRobot Play workflow. The OpenPI training configuration uses MCAP topics; these formats are not interchangeable. Use a collection and conversion workflow that matches your package and dataset.
 
 ## 3. Prepare the Task Configuration and Model
 
-From the OpenPI root, create `data/ptk_example/config.py` using the supplied original `config_ptk_example.py` as a starting point. Edit task name, dataset folders, camera topics, model selection, and experiment name to match your dataset.
+From the OpenPI root, create `data/ptk_example/config.py` using [config_ptk_example.py](configs/config_ptk_example.py) as a starting point. Edit task name, dataset folders, camera topics, model selection, and experiment name to match your dataset.
 
-The archived example defaults to `BASE_MODEL = "pi0"`; its defaults are preserved here. The newer documentation also describes PI0.5. Switching models requires the corresponding configuration and weights, not merely renaming a checkpoint directory.
+The example defaults to `BASE_MODEL = "pi0"`. PI0.5 requires the corresponding configuration and weights; do not switch models merely by renaming a checkpoint directory.
 
-**No task-specific PTK checkpoint was found in the inspected local package.** Model weights are not included in this repository. Obtain your matching trained checkpoint and its training configuration before inference. The documented PI0.5 base weights at `gs://openpi-assets/checkpoints/pi05_base/params` are a training starting point, not a ready-to-run PTK task policy.
+**This repository does not include task-specific PTK model weights.** Obtain a matching trained checkpoint and its training configuration before inference. The PI0.5 base weights at `gs://openpi-assets/checkpoints/pi05_base/params` are a training starting point, not a ready-to-run PTK task policy.
 
 If training your own policy, run from the compatible OpenPI root:
 
@@ -96,9 +96,9 @@ XLA_PYTHON_CLIENT_MEM_FRACTION=0.9 uv run examples/airbot/airbot_train.py --conf
 
 Training requires a real dataset; this repository does not include one.
 
-The official model reproduction guide illustrates a checkpoint directory as follows. This is a reference layout, not a checkpoint included with this demo; use the output of your matching training run.
+Checkpoint directory example. This is a reference layout, not a checkpoint included with this demo; use the output of your matching training run.
 
-![Example checkpoint directory from the official tutorial](assets/checkpoint-layout.png)
+![Example checkpoint directory](assets/checkpoint-layout.png)
 
 ## 4. Run Dual-Arm Inference
 
@@ -112,10 +112,4 @@ uv run examples/airbot/airbot_inference_sync_ah.py policy-config:local-policy-co
   --policy-config.checkpoint-dir /path/to/matching/ptk/checkpoint
 ```
 
-Check the inference script's prompt and reset pose against your training task before starting. This command is a workflow reference, not a hardware-tested deployment.
-
-## Provenance
-
-The reference images are copied from the official model reproduction and data collection documentation and placed beside their corresponding steps.
-
-The collection YAML is copied from `docs/assets/airbot-play/config_PTK.yaml`. The training example is copied unchanged from the downloaded `openpi_v0.2.0.zip`. See [SOURCE.md](SOURCE.md) for version and license notes. Internal Git history, unrelated product materials, model weights, and datasets are not uploaded.
+Check the inference script's prompt and reset pose against your training task before starting. Validate the configuration and motion range in a safe environment before operating on hardware.

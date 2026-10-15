@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-本仓库整理 DISCOVER Robotics 文档中 AIRBOT Play PTK 的双臂数据采集、策略训练与本地推理流程。[叠衣服 Demo](https://github.com/DISCOVER-Robotics/AIRBOT-Play-PTK-Cloth-Folding-Demo) 是独立的任务仓库，不与本仓库混用。
+本 Demo 展示 AIRBOT Play PTK 双臂数据采集、策略训练与本地推理流程。[叠衣服 Demo](https://github.com/DISCOVER-Robotics/AIRBOT-Play-PTK-Cloth-Folding-Demo) 是独立的任务仓库，不与本仓库混用。
 
 ## 资料入口
 
@@ -10,7 +10,7 @@
 | --- | --- |
 | 配套 OpenPI 和数据采集包 | [官网下载](https://docs.discover-robotics.com/document/assets/airbot-play/model-reproduction/pi0.5.zip) |
 | PTK 采集配置 | [configs/config_PTK.yaml](configs/config_PTK.yaml) |
-| 配套包原始训练配置 | [configs/config_ptk_example.py](configs/config_ptk_example.py) |
+| OpenPI 训练示例配置 | [configs/config_ptk_example.py](configs/config_ptk_example.py) |
 | 模型复现教程 | [官方文档](https://docs.discover-robotics.com/document/airbot-play/hardware-driver/tutorials/model-reproduction/pi0.5.html) |
 | 数据采集教程 | [官方文档](https://docs.discover-robotics.com/document/airbot-play/hardware-driver/tutorials/data-collection.html) |
 | 硬件依赖包 | [AIRBOT Play Hardware releases](https://github.com/DISCOVER-Robotics/AIRBOT-Play-Hardware/releases) |
@@ -28,7 +28,7 @@
 | OpenPI 包 | openpi_v0.2.0 |
 | 数据采集包 | airbot-data-5.1.6.7 |
 | 设备配置包 | airbot-configure 5.1.6-1 |
-| 硬件 wheel | 从发布页选择匹配 Python 和平台的包；本仓库不虚构具体版本 |
+| 硬件 wheel | 从发布页选择匹配 Python 和平台的包 |
 
 采集与推理依赖不同的情况下，应使用独立环境。官方教程建议在 Ubuntu 24.04 上使用 Python 3.12 安装硬件驱动包。
 
@@ -63,29 +63,29 @@ uv pip install /path/to/airbot_hardware_py-MATCHING_VERSION.whl
 ffmpeg -encoders | grep svtav1
 ```
 
-![官方教程中的 FFmpeg 编码器检查结果](assets/ffmpeg-verification.png)
+![FFmpeg 编码器检查结果](assets/ffmpeg-verification.png)
 
 ## 2. 配置数据采集
 
-配置机械臂前，先检查 CAN 接口是否被识别。下图接口名是官方采集教程中的示例，请以实际设备对应关系为准。
+配置机械臂前，先检查 CAN 接口是否被识别。下图接口名仅为示例，请以实际设备对应关系为准。
 
 ```bash
 ip link show
 ```
 
-![官方采集教程中的 CAN 接口识别结果](assets/can-interfaces.jpg)
+![CAN 接口识别结果](assets/can-interfaces.jpg)
 
 结合官方采集流程使用 [config_PTK.yaml](configs/config_PTK.yaml)。按实际接线修改四个 CAN 接口和三个相机设备。每次采集前设置新的数据集 ID 和真实任务描述。
 
-此 YAML 对应当前文档的 LeRobot Play 采集流程；配套包原始 OpenPI 训练配置使用 MCAP 话题。两种数据格式不能直接混用，应使用与代码包和数据集匹配的采集、转换流程。
+采集 YAML 使用 LeRobot Play 流程，OpenPI 训练配置使用 MCAP 话题。两种数据格式不能直接混用，应使用与代码包和数据集匹配的采集、转换流程。
 
 ## 3. 准备任务配置和模型
 
-在 OpenPI 根目录创建 `data/ptk_example/config.py`，以本仓库提供的原始 `config_ptk_example.py` 为起点，根据真实数据修改任务名、数据目录、相机话题、模型类型和实验名。
+在 OpenPI 根目录创建 `data/ptk_example/config.py`，以 [config_ptk_example.py](configs/config_ptk_example.py) 为起点，根据真实数据修改任务名、数据目录、相机话题、模型类型和实验名。
 
-原始包配置默认 `BASE_MODEL = "pi0"`，本仓库保留原值。新版文档也介绍 PI0.5；更换模型必须同步使用对应配置和权重，不能只修改模型目录名称。
+示例配置默认 `BASE_MODEL = "pi0"`。如使用 PI0.5，必须同步使用对应配置和权重，不能只修改模型目录名称。
 
-**在已检查的本地配套包中没有找到独立的 PTK 任务模型权重。** 本仓库不包含权重。推理前需要取得匹配的已训练模型及训练配置。文档中的 `gs://openpi-assets/checkpoints/pi05_base/params` 是 PI0.5 训练基础权重，不是可直接执行 PTK 任务的策略。
+**本仓库不包含 PTK 任务模型权重。** 推理前需要取得匹配的已训练模型及训练配置。`gs://openpi-assets/checkpoints/pi05_base/params` 是 PI0.5 训练基础权重，不是可直接执行 PTK 任务的策略。
 
 如需自行训练，在配套 OpenPI 根目录执行：
 
@@ -96,9 +96,9 @@ XLA_PYTHON_CLIENT_MEM_FRACTION=0.9 uv run examples/airbot/airbot_train.py --conf
 
 训练需要真实数据集，本仓库不包含数据集。
 
-官方模型复现教程中的模型目录示例如下。这只是目录结构参考，不代表本 Demo 已包含该模型；请使用与任务匹配的实际训练输出。
+模型目录示例如下。这只是目录结构参考，本 Demo 不包含该模型；请使用与任务匹配的实际训练输出。
 
-![官方教程中的模型目录示例](assets/checkpoint-layout.png)
+![模型目录示例](assets/checkpoint-layout.png)
 
 ## 4. 双臂推理
 
@@ -112,10 +112,4 @@ uv run examples/airbot/airbot_inference_sync_ah.py policy-config:local-policy-co
   --policy-config.checkpoint-dir /path/to/matching/ptk/checkpoint
 ```
 
-启动前核对推理脚本中的 prompt 和复位姿态是否匹配训练任务。此命令是流程参考，本次没有完成真机部署验证。
-
-## 来源说明
-
-参考图片来自官方模型复现和数据采集文档，已放到对应操作步骤旁。
-
-采集 YAML 来自 `docs/assets/airbot-play/config_PTK.yaml`；训练配置原样取自已下载的 `openpi_v0.2.0.zip`。版本和许可说明见 [SOURCE.md](SOURCE.md)。不上传内部 Git 历史、无关产品资料、模型权重或数据集。
+启动前核对推理脚本中的 prompt 和复位姿态是否匹配训练任务。真机运行前，请在安全环境中验证配置和运动范围。
