@@ -15,8 +15,6 @@ Follow the [model reproduction guide](https://docs.discover-robotics.com/documen
 
 An existing policy requires its complete checkpoint, matching `config.py`, and task instruction; task weights are not bundled in this repository. When training your own policy, use the checkpoint produced by the tutorial workflow. Check camera settings and the initial pose against the guide and your policy configuration.
 
-The instructions below have been checked against the companion package code. GPU model loading and dual-arm hardware execution of this repository's workflow have not yet been validated.
-
 ## Resources
 
 | Resource | Location |
